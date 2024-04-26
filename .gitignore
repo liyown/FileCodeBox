@@ -5,6 +5,7 @@ logs/
 __pycache__/
 *.py[cod]
 *$py.class
+fcb-fronted\dist
 # Created by .ignore support plugin (hsz.mobi)
 ### Python template
 # Byte-compiled / optimized / DLL files
@@ -154,3 +155,4 @@ for_test.py
 data/.env
 .backup/
 /cloc-1.64.exe
+fcb-fronted/dist/

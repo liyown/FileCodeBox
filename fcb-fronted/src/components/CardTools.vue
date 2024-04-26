@@ -32,7 +32,7 @@ const fileBoxStore = useFileBoxStore();
     </div>
     <file-box></file-box>
   </div>
-</template>
+</template>sad
 
 <style scoped lang="scss">
 

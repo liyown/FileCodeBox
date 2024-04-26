@@ -67,12 +67,16 @@ const listenInput = (num: number) => {
     code.value += num
   }
 };
-const name = atob('RmlsZUNvZGVCb3ggVjIuMCBCZXRh');
-const url = atob('aHR0cHM6Ly9naXRodWIuY29tL3Zhc3RzYS9GaWxlQ29kZUJveA==');
+const name = "FileCodeBox edition by liyown"
+const url = "https://github.com/liyown/FileCodeBox"
+const ICPurl = "https://beian.miit.gov.cn/";
 </script>
 
 <template>
     <main>
+      <div style="text-align: center;margin-top: 1rem">
+        <img src="../../assets/logo.png" alt="logo" style="width: 100px;height: 100px; margin: auto, auto"/>
+      </div>
       <el-card class="card" style="padding-bottom: 1rem">
         <CardTools/>
         <el-row style="text-align: center">
@@ -99,8 +103,11 @@ const url = atob('aHR0cHM6Ly9naXRodWIuY29tL3Zhc3RzYS9GaWxlQ29kZUJveA==');
         <a style="text-decoration: none;color: #606266" target="_blank" :href="url">
           {{ name}}
         </a>
-        <a @click="noDialog" style="text-decoration: none;color: #606266;margin-left: 1rem" href="javascript:void(0)">{{t('send.mzsm')}}</a>
+        <!-- <a @click="noDialog" style="text-decoration: none;color: #606266;margin-left: 1rem" href="javascript:void(0)">{{t('send.mzsm')}}</a> -->
+        <a style="text-decoration: none;color: #606266;margin-left: 1rem" target="_blank" :href="ICPurl">赣ICP备2024031666号</a>
+        <a style="text-decoration: none;color: #606266;margin-left: 1rem" target="_blank" :href="ICPurl">赣ICP备2024031666号-1</a>
       </div>
+     
     </main>
 </template>
 <style lang='scss'>
