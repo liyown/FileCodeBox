@@ -1,10 +1,13 @@
 <script setup lang="ts">
+import Navigation from "@/components/Navigation.vue";
 
 </script>
 
 <template>
+
   <div>
-    <RouterView />
+    <Navigation class="nagivation" />
+    <RouterView class="main"/>
   </div>
 </template>
 
@@ -23,4 +26,14 @@ a:hover {
   color: #0056b3; /* 设置链接悬停时的颜色 */
 }
 
+.nagivation {
+  background-color: #f8f9fa; /* 设置背景颜色 */
+}
+
+.main {
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
 </style>

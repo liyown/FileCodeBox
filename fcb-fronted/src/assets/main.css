@@ -1,11 +1,11 @@
 @import './base.css';
 
-#app {
-  display: flex;
+/* #app {
   flex-direction: column;
   justify-content: center;
-  min-height: 100vh;
-}
+  min-height: 100vh;  display: flex;
+
+} */
 
 .card {
   max-width: 400px;
@@ -16,7 +16,7 @@
   border-radius: 20px !important;
   position: relative;
   /* 居中 */
-  margin: 0 auto;
+  margin: 1rem auto;
 }
 
 .tools {

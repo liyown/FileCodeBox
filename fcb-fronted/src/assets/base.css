@@ -63,9 +63,9 @@ html.dark{
 }
 body {
   color: var(--color-text);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  /* display: flex; */
+  /* justify-content: center; */
+  /* align-items: center; */
   line-height: 1.6;
   font-family: Inter,
   -apple-system,

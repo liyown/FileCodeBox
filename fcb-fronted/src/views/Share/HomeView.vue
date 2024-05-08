@@ -74,10 +74,7 @@ const ICPurl = "https://beian.miit.gov.cn/";
 
 <template>
     <main>
-      <div style="text-align: center;margin-top: 1rem">
-        <img src="../../assets/logo.png" alt="logo" style="width: 100px;height: 100px; margin: auto, auto"/>
-      </div>
-      <el-card class="card" style="padding-bottom: 1rem">
+      <el-card class="card">
         <CardTools/>
         <el-row style="text-align: center">
           <el-col :span="24">
