@@ -103,6 +103,7 @@ const ICPurl = "https://beian.miit.gov.cn/";
         <!-- <a @click="noDialog" style="text-decoration: none;color: #606266;margin-left: 1rem" href="javascript:void(0)">{{t('send.mzsm')}}</a> -->
         <a style="text-decoration: none;color: #606266;margin-left: 1rem" target="_blank" :href="ICPurl">赣ICP备2024031666号</a>
         <a style="text-decoration: none;color: #606266;margin-left: 1rem" target="_blank" :href="ICPurl">赣ICP备2024031666号-1</a>
+        <a @click="noDialog" style="text-decoration: none;color: #606266;margin-left: 1rem" href="javascript:void(0)">{{t('send.mzsm')}}</a>
       </div>
      
     </main>

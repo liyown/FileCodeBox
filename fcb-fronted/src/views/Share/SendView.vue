@@ -4,6 +4,9 @@ import CardTools from "@/components/CardTools.vue";
 import UploadFile from "@/components/UploadFile.vue";
 import UploadText from "@/components/UploadText.vue";
 
+console.log(UploadFile);
+
+
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
