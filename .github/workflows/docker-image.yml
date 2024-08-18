@@ -1,8 +1,8 @@
 name:  pakage to docker
 on: 
   push:
-    branches:
-      master
+    tags:
+      - '*'
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -34,6 +34,6 @@ jobs:
               docker stop myfilebox
               docker rm myfilebox 
             fi
-            docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }} 
+            docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }} --password-stdin
             docker pull liuyaowen0925/filecodebox:latest 
             docker run -dp 1212:12345  --restart=always --name myfilebox liuyaowen0925/filecodebox:latest
