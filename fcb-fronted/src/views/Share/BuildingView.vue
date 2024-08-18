@@ -4,11 +4,12 @@
         <p>我们正在努力建设这个网站，敬请期待！</p>
         <p>请稍后再回来查看更新。</p>
         <div class="loader"></div>
+        <a style="text-decoration: none;color: #606266;margin-left: 1rem" target="_blank" :href="ICPurl">赣ICP备2024031666号</a>
     </div>
 </template>
 
 <script setup lang="ts">
-
+const ICPurl = "https://beian.miit.gov.cn/";
 
 </script>
 
@@ -22,6 +23,14 @@
     text-align: center;
     background-color: #f0f0f0;
     color: #333;
+}
+a{
+    position: absolute  ;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin-bottom: 1rem;
+    
 }
 
 h1 {
