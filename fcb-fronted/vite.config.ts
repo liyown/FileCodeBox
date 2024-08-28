@@ -1,5 +1,5 @@
 import { fileURLToPath, URL } from 'node:url'
-
+import { visualizer } from 'rollup-plugin-visualizer'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import AutoImport from 'unplugin-auto-import/vite'
@@ -14,6 +14,10 @@ export default defineConfig({
     }),
     Components({
       resolvers: [ElementPlusResolver()],
+    }),
+    visualizer({
+      open: true,
+      filename: 'visualizer.html' //分析图生成的文件名
     }),
   ],
   resolve: {

@@ -6,7 +6,7 @@ import Navigation from "@/components/Navigation.vue";
 <template>
 
   <div>
-    <!-- <Navigation class="nagivation" /> -->
+    <Navigation class="nagivation" />
     <RouterView class="main"/>
   </div>
 </template>
