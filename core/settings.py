@@ -56,17 +56,18 @@ import json
 
 class Settings:
     __instance = None
-    DB_NAME = BASE_DIR / 'settings.db'
+    DB_NAME = str(data_root / 'settings.db')
 
     def __new__(cls, *args, **kwargs):
-        if not cls.__instance:
-            cls.__instance = super(Settings, cls).__new__(cls, *args, **kwargs)
+        if cls.__instance is None:
+            cls.__instance = super().__new__(cls)
         return cls.__instance
 
-    def __init__(self):
+    def __init__(self, config):
         if not hasattr(self, '_initialized'):
             self._initialize_settings()
             self._initialized = True
+            self.default_config = config
 
     def _initialize_settings(self):
         self._create_table()
@@ -113,7 +114,7 @@ class Settings:
                            (key, json.dumps(value)))
             conn.commit()
             conn.close()
-        self.__dict__[key] = value
+        super().__setattr__(key, value)
 
     def items(self):
         return {k: v for k, v in self.__dict__.items() if not k.startswith('_')}.items()
