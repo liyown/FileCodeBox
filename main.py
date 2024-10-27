@@ -75,30 +75,6 @@ app.add_middleware(
 
 app.mount('/assets', StaticFiles(directory='./fcb-fronted/dist/assets'), name="assets")
 
-<<<<<<< HEAD
-@app.get('/assets/{file_path:path}')
-async def assets(file_path: str):
-    if settings.max_save_seconds > 0:
-        if re.match(r'SendView-[\d|a-f|A-F]+\.js', file_path):
-            with open(BASE_DIR / f'./FileCodeBoxFronted/dist/assets/{file_path}', 'r', encoding='utf-8') as f:
-                # 删除永久保存选项
-                content = f.read()
-                content = content.replace('_(c,{label:e(r)("send.expireData.forever"),value:"forever"},null,8,["label"]),', '')
-                return HTMLResponse(content=content, media_type='text/javascript')
-        if re.match(r'index-[\d|a-f|A-F]+\.js', file_path):
-            with open(BASE_DIR / f'./FileCodeBoxFronted/dist/assets/{file_path}', 'r', encoding='utf-8') as f:
-                # 更改本文描述
-                desc_zh, desc_en = await max_save_times_desc(settings.max_save_seconds)
-                content = f.read()
-                content = content.replace('天数<7', desc_zh)
-                content = content.replace('Days <7', desc_en)
-                return HTMLResponse(content=content, media_type='text/javascript')
-    return FileResponse(f'./FileCodeBoxFronted/dist/assets/{file_path}')
-
-
-=======
-# 使用 register_tortoise 来添加异常处理器
->>>>>>> 9ba7d3779685b3e7be7e2e918c58ace143ad2bad
 register_tortoise(
     app,
     config={
@@ -121,11 +97,7 @@ app.include_router(admin_api)
 @app.get('/')
 async def index():
     return HTMLResponse(
-<<<<<<< HEAD
-        content=open(BASE_DIR / './FileCodeBoxFronted/dist/index.html', 'r', encoding='utf-8').read()
-=======
         content=open(BASE_DIR / 'fcb-fronted/dist/index.html', 'r', encoding='utf-8').read()
->>>>>>> 9ba7d3779685b3e7be7e2e918c58ace143ad2bad
         .replace('{{title}}', str(settings.name))
         .replace('{{description}}', str(settings.description))
         .replace('{{keywords}}', str(settings.keywords))

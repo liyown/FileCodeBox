@@ -98,7 +98,7 @@ class Settings:
     def _insert_default_settings(self):
         conn = sqlite3.connect(self.DB_NAME)
         cursor = conn.cursor()
-        for key, value in default_value.items():
+        for key, value in DEFAULT_CONFIG.items():
             cursor.execute('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)',
                            (key, json.dumps(value)))
         conn.commit()
