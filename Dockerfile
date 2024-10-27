@@ -16,13 +16,6 @@ WORKDIR /app
 # 安装依赖项（包括 PyTorch）
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 安装 PyTorch
-# 对于 CPU 版本的 PyTorch
-RUN pip install torch torchvision torchaudio
-
-# 如果需要 GPU 版本，请使用以下命令并指定 CUDA 版本
-# RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
-
 # 暴露应用的端口
 EXPOSE 12345
 
