@@ -8,12 +8,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      # vite 打包
-      - name: Install dependencies
-        run: cd fcb-fronted && npm install && npm run build
-      # 返回根目录
-      - name: Return to root
-        run: cd ..
       - uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
