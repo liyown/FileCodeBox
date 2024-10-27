@@ -2,6 +2,8 @@
 # @Author  : Lan
 # @File    : storage.py
 # @Software: PyCharm
+from typing import Optional
+
 import aiohttp
 import asyncio
 from pathlib import Path
@@ -10,7 +12,7 @@ import io
 import re
 import sys
 import aioboto3
-import botocore
+from botocore.config import Config
 from fastapi import HTTPException, Response, UploadFile
 from core.response import APIResponse
 from core.settings import data_root, settings
@@ -20,8 +22,12 @@ from fastapi.responses import FileResponse
 
 
 class FileStorageInterface:
-    def __init__(self):
-        raise NotImplementedError
+    _instance: Optional['FileStorageInterface'] = None
+
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super(FileStorageInterface, cls).__new__(cls, *args, **kwargs)
+        return cls._instance
 
     async def save_file(self, file: UploadFile, save_path: str):
         """
@@ -81,7 +87,7 @@ class SystemFileStorage(FileStorageInterface):
         return await get_file_url(file_code.code)
 
     async def get_file_response(self, file_code: FileCodes):
-        file_path = file_storage.root_path / await file_code.get_file_path()
+        file_path = self.root_path / await file_code.get_file_path()
         if not file_path.exists():
             return APIResponse(code=404, detail='文件已过期删除')
         return FileResponse(file_path, filename=file_code.prefix + file_code.suffix)
@@ -93,6 +99,8 @@ class S3FileStorage(FileStorageInterface):
         self.secret_access_key = settings.s3_secret_access_key
         self.bucket_name = settings.s3_bucket_name
         self.s3_hostname = settings.s3_hostname
+        self.region_name = settings.s3_region_name
+        self.signature_version = settings.s3_signature_version
         self.endpoint_url = settings.s3_endpoint_url or f'https://{self.s3_hostname}'
         self.aws_session_token = settings.aws_session_token
         self.proxy = settings.s3_proxy
@@ -104,17 +112,18 @@ class S3FileStorage(FileStorageInterface):
             self.endpoint_url = settings.s3_endpoint_url
 
     async def save_file(self, file: UploadFile, save_path: str):
-        async with self.session.client("s3", endpoint_url=self.endpoint_url, aws_session_token=self.aws_session_token) as s3:
+        async with self.session.client("s3", endpoint_url=self.endpoint_url, aws_session_token=self.aws_session_token, region_name=self.region_name,
+                                       config=Config(signature_version=self.signature_version)) as s3:
             await s3.put_object(Bucket=self.bucket_name, Key=save_path, Body=await file.read(), ContentType=file.content_type)
 
     async def delete_file(self, file_code: FileCodes):
-        async with self.session.client("s3", endpoint_url=self.endpoint_url) as s3:
+        async with self.session.client("s3", endpoint_url=self.endpoint_url, region_name=self.region_name, config=Config(signature_version=self.signature_version)) as s3:
             await s3.delete_object(Bucket=self.bucket_name, Key=await file_code.get_file_path())
 
     async def get_file_response(self, file_code: FileCodes):
         try:
             filename = file_code.prefix + file_code.suffix
-            async with self.session.client("s3", endpoint_url=self.endpoint_url) as s3:
+            async with self.session.client("s3", endpoint_url=self.endpoint_url, region_name=self.region_name, config=Config(signature_version=self.signature_version)) as s3:
                 link = await s3.generate_presigned_url('get_object', Params={'Bucket': self.bucket_name, 'Key': await file_code.get_file_path()}, ExpiresIn=3600)
             tmp = io.BytesIO()
             async with aiohttp.ClientSession() as session:
@@ -133,7 +142,7 @@ class S3FileStorage(FileStorageInterface):
         if self.proxy:
             return await get_file_url(file_code.code)
         else:
-            async with self.session.client("s3", endpoint_url=self.endpoint_url) as s3:
+            async with self.session.client("s3", endpoint_url=self.endpoint_url, region_name=self.region_name, config=Config(signature_version=self.signature_version)) as s3:
                 result = await s3.generate_presigned_url('get_object', Params={'Bucket': self.bucket_name, 'Key': await file_code.get_file_path()}, ExpiresIn=3600)
                 return result
 
@@ -287,4 +296,3 @@ storages = {
     'onedrive': OneDriveFileStorage,
     'opendal': OpenDALFileStorage,
 }
-file_storage: FileStorageInterface = storages[settings.file_storage]()

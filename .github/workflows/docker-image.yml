@@ -25,6 +25,7 @@ jobs:
       - name: 更新服务器
         uses: appleboy/ssh-action@v0.1.10
         with:
+<<<<<<< HEAD
           host: ${{ secrets.SERVER_HOST }} # 服务器ip地址 ; 需要去仓库的 settings/secrets/actions 去创建
           username: ${{ secrets.SERVER_USER }} # 服务器用户名称；需要去仓库的 settings/secrets/actions 去创建
           password: ${{ secrets.SERVER_PWD }} # 服务器密码；需要去仓库的 settings/secrets/actions 去创建
@@ -37,3 +38,15 @@ jobs:
             docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }} --password-stdin
             docker pull liuyaowen0925/filecodebox:latest 
             docker run -dp 1212:12345  --restart=always --name myfilebox liuyaowen0925/filecodebox:latest
+=======
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/filecodebox:latest
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+>>>>>>> 9ba7d3779685b3e7be7e2e918c58ace143ad2bad

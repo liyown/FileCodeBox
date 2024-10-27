@@ -4,9 +4,13 @@ FROM python:3.9.5-slim-buster
 # 设置标签信息
 LABEL author="Lan"
 LABEL email="vast@tom.com"
+<<<<<<< HEAD
 LABEL version="6"
 
 # 复制当前目录内容到容器内的 /app 目录
+=======
+
+>>>>>>> 9ba7d3779685b3e7be7e2e918c58ace143ad2bad
 COPY . /app
 
 # 设置时区为上海

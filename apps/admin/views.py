@@ -2,81 +2,99 @@
 # @Author  : Lan
 # @File    : views.py
 # @Software: PyCharm
-import math
 
 from fastapi import APIRouter, Depends
-
-from apps.admin.depends import admin_required
-from apps.admin.pydantics import IDData
-from apps.base.models import FileCodes
+from apps.admin.services import FileService, ConfigService, LocalFileService
+from apps.admin.dependencies import admin_required, get_file_service, get_config_service, get_local_file_service
+from apps.admin.schemas import IDData, ShareItem, DeleteItem
 from core.response import APIResponse
-from core.settings import settings
-from core.storage import file_storage
 
-admin_api = APIRouter(
-    prefix='/admin',
-    tags=['管理'],
-)
+admin_api = APIRouter(prefix='/admin', tags=['管理'])
 
 
-@admin_api.post('/login', dependencies=[Depends(admin_required)])
-async def login():
+@admin_api.post('/login')
+async def login(admin: bool = Depends(admin_required)):
     return APIResponse()
 
 
-@admin_api.delete('/file/delete', dependencies=[Depends(admin_required)])
-async def file_delete(data: IDData):
-    file_code = await FileCodes.get(id=data.id)
-    await file_storage.delete_file(file_code)
-    await file_code.delete()
+@admin_api.delete('/file/delete')
+async def file_delete(
+        data: IDData,
+        file_service: FileService = Depends(get_file_service),
+        admin: bool = Depends(admin_required)
+):
+    await file_service.delete_file(data.id)
     return APIResponse()
 
 
-@admin_api.get('/file/list', dependencies=[Depends(admin_required)])
-async def file_list(page: float = 1, size: int = 10):
+@admin_api.get('/file/list')
+async def file_list(
+        page: int = 1,
+        size: int = 10,
+        file_service: FileService = Depends(get_file_service),
+        admin: bool = Depends(admin_required)
+):
+    files, total = await file_service.list_files(page, size)
     return APIResponse(detail={
         'page': page,
         'size': size,
-        'data': await FileCodes.all().limit(size).offset((math.ceil(page) - 1) * size),
-        'total': await FileCodes.all().count(),
+        'data': files,
+        'total': total,
     })
 
 
-@admin_api.get('/config/get', dependencies=[Depends(admin_required)])
-async def get_config():
-    return APIResponse(detail=settings.__dict__)
+@admin_api.get('/config/get')
+async def get_config(
+        config_service: ConfigService = Depends(get_config_service),
+        admin: bool = Depends(admin_required)
+):
+    return APIResponse(detail=config_service.get_config())
 
 
-@admin_api.patch('/config/update', dependencies=[Depends(admin_required)])
-async def update_config(data: dict):
-    admin_token = data.get('admin_token')
-    if admin_token is None or admin_token == '':
-        return APIResponse(code=400, detail='管理员密码不能为空')
-
-    for k, v in data.items():
-        settings.__setattr__(k, v)
+@admin_api.patch('/config/update')
+async def update_config(
+        data: dict,
+        config_service: ConfigService = Depends(get_config_service),
+        admin: bool = Depends(admin_required)
+):
+    await config_service.update_config(data)
     return APIResponse()
 
 
-# 根据id获取文件
-async def get_file_by_id(id):
-    # 查询文件
-    file_code = await FileCodes.filter(id=id).first()
-    # 检查文件是否存在
-    if not file_code:
-        return False, '文件不存在'
-    return True, file_code
+@admin_api.get('/file/download')
+async def file_download(
+        id: int,
+        file_service: FileService = Depends(get_file_service),
+        admin: bool = Depends(admin_required)
+):
+    file_content = await file_service.download_file(id)
+    return file_content
 
 
-@admin_api.get('/file/download', dependencies=[Depends(admin_required)])
-async def file_download(id: int):
-    has, file_code = await get_file_by_id(id)
-    # 检查文件是否存在
-    if not has:
-        # 返回API响应
-        return APIResponse(code=404, detail='文件不存在')
-    # 如果文件是文本，返回文本内容，否则返回文件响应
-    if file_code.text:
-        return APIResponse(detail=file_code.text)
-    else:
-        return await file_storage.get_file_response(file_code)
+@admin_api.get('/local/lists')
+async def get_local_lists(
+        local_file_service: LocalFileService = Depends(get_local_file_service),
+        admin: bool = Depends(admin_required)
+):
+    files = await local_file_service.list_files()
+    return APIResponse(detail=files)
+
+
+@admin_api.delete('/local/delete')
+async def delete_local_file(
+        item: DeleteItem,
+        local_file_service: LocalFileService = Depends(get_local_file_service),
+        admin: bool = Depends(admin_required)
+):
+    result = await local_file_service.delete_file(item.filename)
+    return APIResponse(detail=result)
+
+
+@admin_api.post('/local/share')
+async def share_local_file(
+        item: ShareItem,
+        file_service: FileService = Depends(get_file_service),
+        admin: bool = Depends(admin_required)
+):
+    share_info = await file_service.share_local_file(item)
+    return APIResponse(detail=share_info)
