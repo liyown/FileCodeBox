@@ -41,43 +41,72 @@ default_value = {
 }
 
 
+import sqlite3
+import json
+
 class Settings:
     __instance = None
-
-    def __init__(self):
-        # 读取.env
-        if not (env_path).exists():
-            with open(env_path, 'w', encoding='utf-8') as f:
-                for key, value in default_value.items():
-                    f.write(f'{key}={value}\n')
-        # 更新default_value
-        with open(env_path, 'r', encoding='utf-8') as f:
-            for line in f.readlines():
-                key, value = line.strip().split('=', maxsplit=1)
-                # 将字符串转换为原本的类型
-                if not key.startswith('opendal_') and isinstance(default_value[key], int):
-                    value = int(value)
-                default_value[key] = value
-
-        # 更新self
-        for key, value in default_value.items():
-            self.__setattr__(key, value)
+    DB_NAME = BASE_DIR / 'settings.db'
 
     def __new__(cls, *args, **kwargs):
         if not cls.__instance:
             cls.__instance = super(Settings, cls).__new__(cls, *args, **kwargs)
         return cls.__instance
 
+    def __init__(self):
+        if not hasattr(self, '_initialized'):
+            self._initialize_settings()
+            self._initialized = True
+
+    def _initialize_settings(self):
+        self._create_table()
+        self._load_settings()
+
+    def _create_table(self):
+        conn = sqlite3.connect(self.DB_NAME)
+        cursor = conn.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS settings
+            (key TEXT PRIMARY KEY, value TEXT)
+        ''')
+        conn.commit()
+        conn.close()
+
+    def _load_settings(self):
+        conn = sqlite3.connect(self.DB_NAME)
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM settings')
+        rows = cursor.fetchall()
+        conn.close()
+
+        if not rows:
+            self._insert_default_settings()
+        else:
+            for key, value in rows:
+                setattr(self, key, json.loads(value))
+
+    def _insert_default_settings(self):
+        conn = sqlite3.connect(self.DB_NAME)
+        cursor = conn.cursor()
+        for key, value in default_value.items():
+            cursor.execute('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)',
+                           (key, json.dumps(value)))
+        conn.commit()
+        conn.close()
+        self._load_settings()
+
     def __setattr__(self, key, value):
-        if not key.startswith('opendal_') and type(value) == str and value.isnumeric():
-            value = int(value)
+        if not key.startswith('_'):
+            conn = sqlite3.connect(self.DB_NAME)
+            cursor = conn.cursor()
+            cursor.execute('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)',
+                           (key, json.dumps(value)))
+            conn.commit()
+            conn.close()
         self.__dict__[key] = value
-        with open(env_path, 'w', encoding='utf-8') as f:
-            for key, value in self.__dict__.items():
-                f.write(f'{key}={value}\n')
 
     def items(self):
-        return self.__dict__.items()
+        return {k: v for k, v in self.__dict__.items() if not k.startswith('_')}.items()
 
 
 settings = Settings()
