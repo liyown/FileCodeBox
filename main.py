@@ -73,8 +73,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.mount('/assets', StaticFiles(directory='./fcb-fronted/dist/assets'), name="assets")
-
 register_tortoise(
     app,
     config={
@@ -92,18 +90,6 @@ register_tortoise(
 
 app.include_router(share_api)
 app.include_router(admin_api)
-
-
-@app.get('/')
-async def index():
-    return HTMLResponse(
-        content=open(BASE_DIR / 'fcb-fronted/dist/index.html', 'r', encoding='utf-8').read()
-        .replace('{{title}}', str(settings.name))
-        .replace('{{description}}', str(settings.description))
-        .replace('{{keywords}}', str(settings.keywords))
-        .replace('{{opacity}}', str(settings.opacity))
-        .replace('{{background}}', str(settings.background))
-        , media_type='text/html', headers={'Cache-Control': 'no-cache'})
 
 
 @app.get('/robots.txt')
