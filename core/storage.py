@@ -65,18 +65,19 @@ class SystemFileStorage(FileStorageInterface):
         self.chunk_size = 256 * 1024
         self.root_path = data_root
 
-    def _save(self, file, save_path):
-        with open(save_path, 'wb') as f:
-            chunk = file.read(self.chunk_size)
-            while chunk:
-                f.write(chunk)
-                chunk = file.read(self.chunk_size)
-
-    async def save_file(self, file: UploadFile, save_path: str):
-        save_path = self.root_path / save_path
+    def _save(self, file_path, save_path):
+        # 确保目标目录存在
         if not save_path.parent.exists():
             save_path.parent.mkdir(parents=True)
-        await asyncio.to_thread(self._save, file.file, save_path)
+        # 移动文件到目标位置
+        import shutil
+        shutil.move(str(file_path), str(save_path))
+        # 删除目录
+        if file_path.parent.exists():
+            shutil.rmtree(str(file_path.parent))
+    async def save_file(self, file: str, save_path: str):
+        await asyncio.to_thread(self._save, Path(file), save_path)
+
 
     async def delete_file(self, file_code: FileCodes):
         save_path = self.root_path / await file_code.get_file_path()

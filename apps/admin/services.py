@@ -68,22 +68,19 @@ class ConfigService:
         return settings.items()
 
     async def update_config(self, data: dict):
-        admin_token = data.get('admin_token')
-        if admin_token is None or admin_token == '':
-            raise HTTPException(status_code=400, detail='管理员密码不能为空')
-
+        update_data = {}
         for key, value in data.items():
-            if key not in settings.default_config:
+            if key not in settings.default_config or value is None:
                 continue
             if key in ['errorCount', 'errorMinute', 'max_save_seconds', 'onedrive_proxy', 'openUpload', 'port', 's3_proxy', 'uploadCount', 'uploadMinute', 'uploadSize']:
-                data[key] = int(value)
+                update_data[key] = int(value)
             elif key in ['opacity']:
-                data[key] = float(value)
+                update_data[key] = float(value)
             else:
-                data[key] = value
+                update_data[key] = value
 
-        await KeyValue.filter(key='settings').update(value=data)
-        for k, v in data.items():
+        await KeyValue.filter(key='settings').update(value=update_data)
+        for k, v in update_data.items():
             settings.__setattr__(k, v)
 
 
